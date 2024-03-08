@@ -28,7 +28,7 @@
                     <province-ranking-bar-chart
                       ref="topConfirmedCountRankChart"
                       :data="top10ProvinceData"
-                      style="width: 100%; height: 380px"
+                      style="width: 100%; height: 280px;overflow-y: auto;"
                     />
                   </chart-card>
                   <!-- 占比 -->
@@ -54,7 +54,7 @@
                   <!-- 顶部基本统计信息开始 -->
                   <div class="basic-header flex">
                     <!-- 顶部统计信息开始 -->
-                    <div class="top-basic-info">
+                    <!-- <div class="top-basic-info">
                       <basic-data-item-label
                         label="现有确诊"
                         :config="defaultDataConfig.currentConfirmedCount"
@@ -65,31 +65,27 @@
                         :config="defaultDataConfig.confirmedCount"
                         :inCrValue="basicData.confirmedIncr"
                       />
-                      <!-- 境外输入 -->
                       <basic-data-item-label
                         label="境外输入"
                         :config="defaultDataConfig.importedCount"
                         :inCrValue="basicData.importedIncr"
                       />
-                      <!-- 无症状感染者 -->
                       <basic-data-item-label
                         label="无症状感染者"
                         :config="defaultDataConfig.noInFectCount"
                         :inCrValue="basicData.noInFectIncr"
                       />
-                      <!-- 累计治愈 -->
                       <basic-data-item-label
                         label="累计治愈"
                         :config="defaultDataConfig.curedCount"
                         :inCrValue="basicData.curedIncr"
                       />
-                      <!-- 死亡人数 -->
                       <basic-data-item-label
                         label="累计死亡"
                         :config="defaultDataConfig.deadCount"
                         :inCrValue="basicData.deadIncr"
                       />
-                    </div>
+                    </div> -->
                     <!-- 顶部统计信息结束 -->
                   </div>
                   <!-- 顶部基本统计信息开始 -->
@@ -115,7 +111,7 @@
           <!-- 右侧区域开始 -->
           <div class="main-right">
             <!-- 治愈率和死亡率 -->
-            <chart-card
+            <!-- <chart-card
               title="治愈率和死亡率"
               :innerClass="`cure-and-dead-rate-chart`"
               :customClass="`chart-item-bottom-sep`"
@@ -126,7 +122,7 @@
                 title="治愈率"
                 style="width: 280px; height: 130px"
               />
-            </chart-card>
+            </chart-card> -->
             <chart-card title="新增趋势" :customClass="`chart-item-bottom-sep`">
               <basic-trend-chart
                 :data="basicIncrTrendData"
@@ -145,10 +141,10 @@
                   >详情</el-link
                 >
               </div>
-               <dv-scroll-board
-                  :config="provinceConfirmedCountBoardConfig"
-                  style="width: 100%; height: 360px"
-                />
+              <dv-scroll-board
+                :config="provinceConfirmedCountBoardConfig"
+                style="width: 100%; height: 450px"
+              />
             </chart-card>
           </div>
           <!-- 右侧区域结束 -->
@@ -216,110 +212,121 @@
   </div>
 </template>
 <script>
-import ChartCard from '../components/ChartCard'
-import DataMap from '../components/DataMap'
-import CuredAndDeadRateChart from '../components/CuredAndDeadRateChart'
-import BasicDataItemLabel from '../components/BasicDataItemLabel'
-import BasicTrendChart from '../components/BasicTrendChart'
-import ProvinceRankingBarChart from '../components/ProvinceRankingBarChart'
-import CurrentConfirmedCompareBarChart from '../components/CurrentConfirmedCompareBarChart'
-import About from '../components/About'
-import BasicProportionChart from '../components/BasicProportionChart'
+import ChartCard from "../components/ChartCard";
+import DataMap from "../components/DataMap";
+import CuredAndDeadRateChart from "../components/CuredAndDeadRateChart";
+import BasicDataItemLabel from "../components/BasicDataItemLabel";
+import BasicTrendChart from "../components/BasicTrendChart";
+import ProvinceRankingBarChart from "../components/ProvinceRankingBarChart";
+import CurrentConfirmedCompareBarChart from "../components/CurrentConfirmedCompareBarChart";
+import About from "../components/About";
+import BasicProportionChart from "../components/BasicProportionChart";
 
-import covid19Service from '../api/covid19'
+import covid19Service from "../api/covid19";
 
 const formatter = (number) => {
-  const numbers = number.toString().split('').reverse()
-  const segs = []
-  while (numbers.length) segs.push(numbers.splice(0, 3).join(''))
-  return segs.join(',').split('').reverse().join('')
-}
+  const numbers = number
+    .toString()
+    .split("")
+    .reverse();
+  const segs = [];
+  while (numbers.length) segs.push(numbers.splice(0, 3).join(""));
+  return segs
+    .join(",")
+    .split("")
+    .reverse()
+    .join("");
+};
 // 数据样式
-const getNumberStyle = (color = '#E8EAF6', fontSize = 30, fontWeight = 'bolder') => {
+const getNumberStyle = (
+  color = "#E8EAF6",
+  fontSize = 30,
+  fontWeight = "bolder"
+) => {
   return {
     fontSize: fontSize,
     fill: color,
-    fontWeight: fontWeight
-  }
-}
+    fontWeight: fontWeight,
+  };
+};
 
 const initBasicConfig = (data = null) => {
-  let currentConfirmedCount = data ? [data.currentConfirmedCount] : 0
-  let confirmedCount = data ? [data.confirmedCount] : 0
-  let importedCount = data ? [data.importedCount] : 0
-  let noInFectCount = data ? [data.noInFectCount] : 0
-  let deadCount = data ? [data.deadCount] : 0
-  let curedCount = data ? [data.curedCount] : 0
+  let currentConfirmedCount = data ? [data.currentConfirmedCount] : 0;
+  let confirmedCount = data ? [data.confirmedCount] : 0;
+  let importedCount = data ? [data.importedCount] : 0;
+  let noInFectCount = data ? [data.noInFectCount] : 0;
+  let deadCount = data ? [data.deadCount] : 0;
+  let curedCount = data ? [data.curedCount] : 0;
   return {
     confirmedCount: {
       number: [confirmedCount],
-      content: '{nt}',
+      content: "{nt}",
       formatter,
-      style: getNumberStyle()
+      style: getNumberStyle(),
     },
     currentConfirmedCount: {
       number: [currentConfirmedCount],
-      content: '{nt}',
+      content: "{nt}",
       formatter,
-      style: getNumberStyle('#2E8EEA')
+      style: getNumberStyle("#2E8EEA"),
     },
     importedCount: {
       number: [importedCount],
-      content: '{nt}',
+      content: "{nt}",
       formatter,
-      style: getNumberStyle()
+      style: getNumberStyle(),
     },
     noInFectCount: {
       number: [noInFectCount],
-      content: '{nt}',
+      content: "{nt}",
       formatter,
-      style: getNumberStyle()
+      style: getNumberStyle(),
     },
     deadCount: {
       number: [deadCount],
-      content: '{nt}',
+      content: "{nt}",
       formatter,
-      style: getNumberStyle('#D32E58')
+      style: getNumberStyle("#D32E58"),
     },
     curedCount: {
       number: [curedCount],
-      content: '{nt}',
+      content: "{nt}",
       formatter,
-      style: getNumberStyle()
-    }
-  }
-}
+      style: getNumberStyle(),
+    },
+  };
+};
 
 const initProvinceConfirmedCountBoardConfig = (resultList = []) => {
   return {
-    header: ['省份', '累计确诊', '累计治愈', '累计死亡'],
+    header: ["省份", "累计确诊", "累计治愈", "累计死亡"],
     headerHeight: 30,
     data: resultList,
-    align: ['center'],
+    align: ["center"],
     rowNum: 10,
     index: true,
-    indexHeader: '排名',
-    headerBGC: '',
-    oddRowBGC: '',
-    evenRowBGC: '',
-    carousel: 'single'
-  }
-}
+    indexHeader: "排名",
+    headerBGC: "",
+    oddRowBGC: "",
+    evenRowBGC: "",
+    carousel: "single",
+  };
+};
 export default {
   components: {
     ChartCard,
     DataMap,
-    CuredAndDeadRateChart,
-    BasicDataItemLabel,
+    // CuredAndDeadRateChart,
+    // BasicDataItemLabel,
     BasicTrendChart,
     ProvinceRankingBarChart,
     CurrentConfirmedCompareBarChart,
     About,
-    BasicProportionChart
+    BasicProportionChart,
   },
-  data () {
+  data() {
     return {
-      title: '全国新冠肺炎疫情数据大屏',
+      title: "全国新冠肺炎疫情数据大屏",
       provinceTableDialogVisible: false,
       aboutDialogVisible: false,
       commonData: {},
@@ -340,33 +347,36 @@ export default {
         noInFectIncr: 0,
         suspectCount: 0,
         suspectIncr: 0,
-        updateTime: '-'
+        updateTime: "-",
       },
       defaultDataConfig: initBasicConfig(),
       cureRateConfig: {
         data: [0],
-        shape: 'round'
+        shape: "round",
       },
       deadRateConfig: {
         data: [0],
-        shape: 'round'
+        shape: "round",
       },
       countryRankingTakeTurnChartConfig: {
         data: [],
         waitTime: 2000,
-        unit: '单位',
-        valueFormatter ({ value }) {
-          const reverseNumber = (value + '').split('').reverse()
-          let valueStr = ''
+        unit: "单位",
+        valueFormatter({ value }) {
+          const reverseNumber = (value + "").split("").reverse();
+          let valueStr = "";
 
           while (reverseNumber.length) {
-            const seg = reverseNumber.splice(0, 3).join('')
-            valueStr += seg
-            if (seg.length === 3) valueStr += ','
+            const seg = reverseNumber.splice(0, 3).join("");
+            valueStr += seg;
+            if (seg.length === 3) valueStr += ",";
           }
 
-          return valueStr.split('').reverse().join('')
-        }
+          return valueStr
+            .split("")
+            .reverse()
+            .join("");
+        },
       },
       provinceConfirmedCountBoardConfig: initProvinceConfirmedCountBoardConfig(),
       provinceDataList: [],
@@ -374,220 +384,230 @@ export default {
       confirmedCountList: [],
       top10ProvinceData: {
         provinceList: [],
-        valueList: []
+        valueList: [],
       },
       basicIncrTrendData: {
         dateList: [],
         importedIncrDataList: [],
-        currentConfirmedIncrDataList: []
+        currentConfirmedIncrDataList: [],
       },
       confirmSingleBarChartData: {
         dateList: [],
         currentConfirmedCountList: [],
-        confirmedCountList: []
+        confirmedCountList: [],
       },
       rate: {
         curedRate: 0,
-        deadRate: 0
+        deadRate: 0,
       },
       areaData: {},
-      mapDataList: []
-    }
+      mapDataList: [],
+    };
   },
   methods: {
-    queryBasicData () {
-      let self = this
+    queryBasicData() {
+      let self = this;
       covid19Service.getOverall().then((res) => {
         if (!res.success) {
-          console.log('错误:' + res.info)
-          return
+          console.log("错误:" + res.info);
+          return;
         }
-        self.basicData = res.data
-        self.setBasicData(res.data)
-      })
+        self.basicData = res.data;
+        self.setBasicData(res.data);
+      });
     },
-    queryProvinceDataList () {
-      let self = this
+    queryProvinceDataList() {
+      let self = this;
       covid19Service.getProvinceDataList().then((res) => {
         if (!res.success) {
           // TODO 错误处理...
-          console.log('错误:' + res.info)
-          return
+          console.log("错误:" + res.info);
+          return;
         }
-        self.provinceDataList = res.data
-        self.setAreaChartData(res.data)
+        self.provinceDataList = res.data;
+        self.setAreaChartData(res.data);
         // 设置累计排名数据
-        self.setProvinceRankingData(res.data)
+        self.setProvinceRankingData(res.data);
         // 设置各省累计确诊轮播表格数据
-        self.setProvinceComfirmedCountBoardData(res.data)
+        self.setProvinceComfirmedCountBoardData(res.data);
         // 设置地图数据
-        self.setMapData(res.data)
-      })
+        self.setMapData(res.data);
+      });
     },
-    queryTrendDataList () {
-      let self = this
+    queryTrendDataList() {
+      let self = this;
       covid19Service.getDailyList().then((res) => {
         if (!res.success) {
           // TODO 错误处理...
-          console.log('错误:' + res.info)
-          return
+          console.log("错误:" + res.info);
+          return;
         }
-        self.trendDataList = res.data
+        self.trendDataList = res.data;
         // 重置图表数据
-        self.setBasicIncrTrendData(res.data)
-      })
+        self.setBasicIncrTrendData(res.data);
+      });
     },
-    setProvinceRankingData (areaList) {
-      let provinceList = []
-      let dataValueList = []
+    setProvinceRankingData(areaList) {
+      let provinceList = [];
+      let dataValueList = [];
       for (let i = 0; i < 10; i++) {
-        provinceList.push(areaList[i].provinceLabel)
-        dataValueList.push(areaList[i].confirmedCount)
+        provinceList.push(areaList[i].provinceLabel);
+        dataValueList.push(areaList[i].confirmedCount);
       }
       let data = {
         provinceList: provinceList,
-        valueList: dataValueList
-      }
-      this.top10ProvinceData = data
+        valueList: dataValueList,
+      };
+      this.top10ProvinceData = data;
     },
-    setBasicIncrTrendData (data) {
-      let dateList = []
-      let currentConfirmedIncrList = []
-      let importedIncrList = []
+    setBasicIncrTrendData(data) {
+      let dateList = [];
+      let currentConfirmedIncrList = [];
+      let importedIncrList = [];
 
-      let sevenDayDateList = []
+      let sevenDayDateList = [];
       // 仅显示一周条数据
-      let confirmedCountList = []
-      let curedCountList = []
+      let confirmedCountList = [];
+      let curedCountList = [];
       // 仅获取7条数据
-      let count = 7
-      let noInFectDataList = []
+      let count = 7;
+      let noInFectDataList = [];
 
       for (let i = data.currentConfirmedIncrList.length - 1; i >= 0; i--) {
-        dateList.push(data.currentConfirmedIncrList[i][0])
-        currentConfirmedIncrList.push(data.currentConfirmedIncrList[i][1])
+        dateList.push(data.currentConfirmedIncrList[i][0]);
+        currentConfirmedIncrList.push(data.currentConfirmedIncrList[i][1]);
       }
       for (let i = data.importedIncrList.length - 1; i >= 0; i--) {
-        importedIncrList.push(data.importedIncrList[i][1])
+        importedIncrList.push(data.importedIncrList[i][1]);
       }
       for (let i = data.noInFectCountList.length - 1; i >= 0; i--) {
-        noInFectDataList.push(data.noInFectCountList[i][1])
+        noInFectDataList.push(data.noInFectCountList[i][1]);
       }
 
       for (let i = count; i >= 0; i--) {
         if (confirmedCountList.length >= count) {
-          break
+          break;
         }
-        sevenDayDateList.push(data.confirmedCountList[i][0])
-        confirmedCountList.push(data.confirmedCountList[i][1])
+        sevenDayDateList.push(data.confirmedCountList[i][0]);
+        confirmedCountList.push(data.confirmedCountList[i][1]);
       }
       for (let i = count; i >= 0; i--) {
         if (curedCountList.length >= count) {
-          break
+          break;
         }
-        curedCountList.push(data.curedCountList[i][1])
+        curedCountList.push(data.curedCountList[i][1]);
       }
 
       this.basicIncrTrendData = {
         dateList: dateList,
         importedIncrDataList: importedIncrList,
         currentConfirmedIncrDataList: currentConfirmedIncrList,
-        noInFectDataList: noInFectDataList
-      }
+        noInFectDataList: noInFectDataList,
+      };
       this.confirmSingleBarChartData = {
         dateList: sevenDayDateList,
         curedCountList: curedCountList,
-        confirmedCountList: confirmedCountList
-      }
+        confirmedCountList: confirmedCountList,
+      };
     },
-    setProvinceComfirmedCountBoardData (areaList) {
-      let resultList = areaList.map(item => {
-        return [item.provinceLabel, item.confirmedCount, item.curedCount, item.deadCount]
-      })
+    setProvinceComfirmedCountBoardData(areaList) {
+      let resultList = areaList.map((item) => {
+        return [
+          item.provinceLabel,
+          item.confirmedCount,
+          item.curedCount,
+          item.deadCount,
+        ];
+      });
       // 重新生成，否则无法刷新状态
-      this.provinceConfirmedCountBoardConfig = initProvinceConfirmedCountBoardConfig(resultList)
+      this.provinceConfirmedCountBoardConfig = initProvinceConfirmedCountBoardConfig(
+        resultList
+      );
     },
-    setAreaChartData (areaList) {
-      let confirmedCountList = []
-      let provinceList = []
-      let curedCountList = []
-      let deadCountList = []
-      areaList.forEach(item => {
-        provinceList.push(item.provinceLabel)
-        confirmedCountList.push(item.confirmedCount)
-        curedCountList.push(item.curedCount)
-        deadCountList.push(item.deadCount)
-      })
+    setAreaChartData(areaList) {
+      let confirmedCountList = [];
+      let provinceList = [];
+      let curedCountList = [];
+      let deadCountList = [];
+      areaList.forEach((item) => {
+        provinceList.push(item.provinceLabel);
+        confirmedCountList.push(item.confirmedCount);
+        curedCountList.push(item.curedCount);
+        deadCountList.push(item.deadCount);
+      });
       this.areaData = {
         provinceList: provinceList,
         confirmedCountList: confirmedCountList,
         curedCountList: curedCountList,
-        deadCountList: deadCountList
-      }
+        deadCountList: deadCountList,
+      };
     },
-    setMapData (dataList) {
-      let list = dataList.map(item => {
+    setMapData(dataList) {
+      let list = dataList.map((item) => {
         return {
           name: item.provinceLabel,
-          value: item.confirmedCount
-        }
-      })
-      this.mapDataList = list
+          value: item.confirmedCount,
+        };
+      });
+      this.mapDataList = list;
     },
-    provinceTableDialogShowHandler () {
-      this.provinceTableDialogVisible = true
+    provinceTableDialogShowHandler() {
+      this.provinceTableDialogVisible = true;
     },
-    provinceTableDialogClose () {
-      this.provinceTableDialogVisible = false
+    provinceTableDialogClose() {
+      this.provinceTableDialogVisible = false;
     },
-    aboutDialogShowHandler () {
-      this.aboutDialogVisible = true
+    aboutDialogShowHandler() {
+      this.aboutDialogVisible = true;
     },
-    aboutDialogClose () {
-      this.aboutDialogVisible = false
+    aboutDialogClose() {
+      this.aboutDialogVisible = false;
     },
-    setBasicData (data) {
+    setBasicData(data) {
       // 重新生成，否则视图不更新
-      let config = initBasicConfig(data)
-      this.defaultDataConfig = config
+      let config = initBasicConfig(data);
+      this.defaultDataConfig = config;
       // 处理治愈率和死亡率
       this.rate = {
         curedRate: data.curedRate / 100,
-        deadRate: data.deadRate / 100
-      }
+        deadRate: data.deadRate / 100,
+      };
     },
-    startQueryData () {
-      this.queryBasicData()
-      this.queryProvinceDataList()
-      this.queryTrendDataList()
+    startQueryData() {
+      this.queryBasicData();
+      this.queryProvinceDataList();
+      this.queryTrendDataList();
     },
     initAllChart() {
-      this.$refs.dataMap.initChart()
-      this.$refs.cureRateChart.initChart()
-      this.$refs.confirmedCountTrendChart.initChart()
-      this.$refs.topConfirmedCountRankChart.initChart()
-      this.$refs.confirmSingleBarChart.initChart()
-      this.$refs.basicProportionChart.initChart()
-    }
+      this.$refs.dataMap.initChart();
+      // this.$refs.cureRateChart.initChart()
+      this.$refs.confirmedCountTrendChart.initChart();
+      this.$refs.topConfirmedCountRankChart.initChart();
+      this.$refs.confirmSingleBarChart.initChart();
+      this.$refs.basicProportionChart.initChart();
+    },
   },
-  mounted () {
-    this.initAllChart()
-    this.startQueryData()
+  mounted() {
+    this.initAllChart();
+    this.startQueryData();
 
-    let self = this
+    let self = this;
     // 定义定时器，隔 5 秒刷新一次
     this.timer = setInterval(() => {
-      self.startQueryData()
-    }, 5000)
+      self.startQueryData();
+    }, 5000);
   },
   beforeDestroy() {
-    clearInterval(this.timer)
-  }
-}
+    clearInterval(this.timer);
+  },
+};
 </script>
 <style>
 .container {
   position: relative;
+}
+::-webkit-scrollbar {
+  display: none;
 }
 h1 {
   font-size: 35px;
